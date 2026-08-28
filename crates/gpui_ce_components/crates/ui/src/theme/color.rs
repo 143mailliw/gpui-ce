@@ -762,6 +762,18 @@ pub fn try_parse_color(color: &str) -> Result<Hsla> {
     Ok(hsla)
 }
 
+/// Deserialize theme colors from the string syntax accepted by
+/// [`try_parse_color`]. Palette's structural `Hsla` deserializer cannot read
+/// the hex and named colors used by GPUI theme files.
+pub(crate) fn deserialize_optional_hsla<'de, D>(deserializer: D) -> Result<Option<Hsla>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Option::<String>::deserialize(deserializer)?.map_or(Ok(None), |value| {
+        try_parse_color(&value).map(Some).map_err(serde::de::Error::custom)
+    })
+}
+
 /// Try to parse a theme background value.
 ///
 /// Supports all values accepted by [`try_parse_color`] and CSS-style two-stop
