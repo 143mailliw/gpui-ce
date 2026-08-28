@@ -1,11 +1,2 @@
-[patch.crates-io]
-# Keep this independent workspace resolvable in CI before the GPUI CE crates
-# have been published. Release manifests still resolve these packages from the
-# registry for downstream consumers.
-gpui_ce = { path = "../../crates/gpui" }
-gpui_ce_platform = { path = "../../crates/gpui_platform" }
-gpui_ce_web = { path = "../../crates/gpui_web" }
-gpui_ce_macros = { path = "../../crates/gpui_macros" }
-
 [target.x86_64-pc-windows-msvc]
 rustflags = ["-C", "link-arg=/STACK:8000000"]
