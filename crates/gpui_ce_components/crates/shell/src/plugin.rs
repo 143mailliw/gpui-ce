@@ -2386,7 +2386,7 @@ mod tests {
     #[test]
     fn malformed_shell_versions_are_errors_not_panics() {
         for required in ["0.1.0-", "00.1.0", "0.1.184467440737095516160", "latest"] {
-            let source = VALID.replacen("\"0.1.0\"", &format!("\"{required}\""), 1);
+            let source = VALID.replacen("\"0.2.0\"", &format!("\"{required}\""), 1);
             let error = PluginManifest::parse(&source).expect_err("invalid semantic version");
             assert_eq!(
                 error.problem(),
