@@ -209,8 +209,12 @@ name = "text"
 path = "examples/learn/text.rs"
 
 [[example]]
-name = "transition"
-path = "examples/learn/transition.rs"
+name = "transitions"
+path = "examples/learn/transitions.rs"
+
+[[example]]
+name = "style_transitions"
+path = "examples/learn/style_transitions.rs"
 
 [[example]]
 name = "haptic_feedback"
