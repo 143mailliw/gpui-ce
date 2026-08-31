@@ -267,6 +267,10 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          # GitHub otherwise checks out a synthetic merge commit. Checking the
+          # PR head directly makes the comparison exactly base..PR, so API
+          # breaks already present on main are not reported again.
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Install system deps
         run: |
@@ -277,9 +281,10 @@ jobs:
         with:
           package: gpui-ce
           baseline-rev: ${{ github.event.pull_request.base.sha }}
-          # gpui-ce is being released as 0.2.3. A patch release must not
-          # contain breaking API changes, so previously advisory diagnostics
-          # are CI failures for this release.
+          # This is an API-diff gate, not a release-type waiver. Keep the
+          # patch policy so an incompatibility introduced by this PR is shown
+          # and fails here; the reserved next-major release record does not
+          # make unrelated main-branch breaks part of this PR.
           release-type: patch
 
   # The components subtree is a separate Cargo workspace and must be checked
