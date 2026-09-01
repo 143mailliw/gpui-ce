@@ -1983,7 +1983,8 @@ pub struct WindowParams {
     #[cfg_attr(any(target_os = "linux", target_os = "freebsd"), allow(dead_code))]
     pub show: bool,
 
-    /// An image to set as the window icon (x11 only)
+    /// An image to set as the window icon (X11 and Wayland only)
+    /// Wayland requires the xdg-toplevel-icon protocol to be available
     #[cfg_attr(feature = "wayland", allow(dead_code))]
     pub icon: Option<Arc<image::RgbaImage>>,
 
