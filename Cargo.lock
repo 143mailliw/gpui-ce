@@ -2765,6 +2765,7 @@ dependencies = [
  "smallvec",
  "uuid",
  "wgsl-rs",
+ "windows 0.61.3",
  "windows 0.62.2",
  "windows-core 0.62.2",
  "windows-numerics 0.3.1",
