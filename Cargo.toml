@@ -172,12 +172,15 @@ util = { path = "crates/gpui_zed_util", version = "0.2.2", package = "gpui_ce_ze
 wgpu = "29.0.3"
 criterion = { version = "0.5", features = ["html_reports"] }
 objc2-app-kit = { version = "0.3", default-features = false, features = [
+  "NSAlert",
+  "NSApplication",
   "NSButton",
   "NSControl",
   "NSGraphics",
   "NSResponder",
   "NSView",
   "NSWindow",
+  "block2",
 ] }
 semver = { version = "1.0", features = ["serde"] }
 windows-core = "0.62.2"
