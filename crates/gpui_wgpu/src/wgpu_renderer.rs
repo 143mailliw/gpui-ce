@@ -2104,8 +2104,7 @@ impl WgpuRenderer {
                     // Blur filters are only implemented by the storage-buffer
                     // render loop below; the WebGL2 path renders the scene
                     // without them.
-                    PrimitiveBatch::BackdropFilters(_)
-                    | PrimitiveBatch::FilterBoundary(_) => {}
+                    PrimitiveBatch::BackdropFilters(_) | PrimitiveBatch::FilterBoundary(_) => {}
                 }
             }
         }
@@ -2245,7 +2244,6 @@ impl WgpuRenderer {
             pass,
         )
     }
-
 
     fn draw_subpixel_sprites(
         &self,
@@ -2672,7 +2670,6 @@ impl WgpuRenderer {
         true
     }
 
-
     fn draw_buffer_instances_with_texture(
         &self,
         data: &[u8],
@@ -2785,7 +2782,6 @@ impl WgpuRenderer {
         )
     }
 
-
     fn draw_paths_to_intermediate(
         &self,
         encoder: &mut wgpu::CommandEncoder,
@@ -2814,8 +2810,7 @@ impl WgpuRenderer {
             return false;
         };
 
-        let Some(vertex_binding) = self.instance_binding(vertex_offset, vertex_size)
-        else {
+        let Some(vertex_binding) = self.instance_binding(vertex_offset, vertex_size) else {
             return false;
         };
         let resources = self.resources();
