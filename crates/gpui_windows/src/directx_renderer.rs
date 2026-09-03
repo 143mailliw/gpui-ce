@@ -1452,7 +1452,7 @@ impl DirectXRenderPipelines {
             device,
             RawShaderBytes::new(ShaderModule::BlurComposite, ShaderTarget::Fragment)?.as_bytes(),
         )?;
-        let blur_params_buffer = create_constant_buffer(device, std::mem::size_of::<BlurParams>())?;
+        let blur_params_buffer = create_constant_buffer::<BlurParams>(device)?.unwrap();
         let blur_blend_replace = create_blend_state_no_blend(device)?;
         // Premultiplied (One / InvSrcAlpha) — the composite outputs a premultiplied blurred sample;
         // straight-alpha blending would darken the faded edges.
@@ -2126,21 +2126,6 @@ fn create_blend_state_for_path_sprite(device: &ID3D11Device) -> Result<ID3D11Ble
         device.CreateBlendState(&desc, Some(&mut state))?;
         Ok(state.unwrap())
     }
-}
-
-/// Create a CPU-writable dynamic constant buffer of the given byte size (rounded up to 16).
-#[inline]
-fn create_constant_buffer(device: &ID3D11Device, byte_size: usize) -> Result<ID3D11Buffer> {
-    let desc = D3D11_BUFFER_DESC {
-        ByteWidth: byte_size.next_multiple_of(16) as u32,
-        Usage: D3D11_USAGE_DYNAMIC,
-        BindFlags: D3D11_BIND_CONSTANT_BUFFER.0 as u32,
-        CPUAccessFlags: D3D11_CPU_ACCESS_WRITE.0 as u32,
-        ..Default::default()
-    };
-    let mut buffer = None;
-    unsafe { device.CreateBuffer(&desc, None, Some(&mut buffer)) }?;
-    Ok(buffer.unwrap())
 }
 
 /// A blend state that overwrites the target (no blending) — used for the blur downsample and
