@@ -430,24 +430,27 @@ impl Interpolate for Rems {
 
 impl Interpolate for Rgba {
     fn interpolate(from: Self, to: Self, phase: f32) -> Self {
-        Self {
-            r: f32::interpolate(from.r, to.r, phase),
-            g: f32::interpolate(from.g, to.g, phase),
-            b: f32::interpolate(from.b, to.b, phase),
-            a: f32::interpolate(from.a, to.a, phase),
-        }
+        Self::new(
+            f32::interpolate(from.color.red, to.color.red, phase),
+            f32::interpolate(from.color.green, to.color.green, phase),
+            f32::interpolate(from.color.blue, to.color.blue, phase),
+            f32::interpolate(from.alpha, to.alpha, phase),
+        )
     }
 }
 
 impl Interpolate for Hsla {
     fn interpolate(from: Self, to: Self, phase: f32) -> Self {
-        let hue_delta = (to.h - from.h + 0.5).rem_euclid(1.0) - 0.5;
-        Self {
-            h: (from.h + hue_delta * phase).rem_euclid(1.0),
-            s: f32::interpolate(from.s, to.s, phase),
-            l: f32::interpolate(from.l, to.l, phase),
-            a: f32::interpolate(from.a, to.a, phase),
-        }
+        use palette::RgbHue;
+        let from_h = from.color.hue.into_degrees() / 360.0;
+        let to_h = to.color.hue.into_degrees() / 360.0;
+        let hue_delta = (to_h - from_h + 0.5).rem_euclid(1.0) - 0.5;
+        Self::new(
+            RgbHue::from_degrees((from_h + hue_delta * phase).rem_euclid(1.0) * 360.0),
+            f32::interpolate(from.color.saturation, to.color.saturation, phase),
+            f32::interpolate(from.color.lightness, to.color.lightness, phase),
+            f32::interpolate(from.alpha, to.alpha, phase),
+        )
     }
 }
 
@@ -645,24 +648,15 @@ mod tests {
 
     #[test]
     fn hsla_interpolation_takes_the_shortest_hue_path() {
-        let from = Hsla {
-            h: 0.9,
-            s: 0.5,
-            l: 0.5,
-            a: 1.0,
-        };
-        let to = Hsla {
-            h: 0.1,
-            s: 1.0,
-            l: 0.75,
-            a: 0.5,
-        };
+        let from = crate::hsla(0.9, 0.5, 0.5, 1.0);
+        let to = crate::hsla(0.1, 1.0, 0.75, 0.5);
         let result = AnimationPhase(0.5).interpolate(from, to);
 
-        assert!(result.h < EPSILON || (1.0 - result.h) < EPSILON);
-        assert!((result.s - 0.75).abs() < EPSILON);
-        assert!((result.l - 0.625).abs() < EPSILON);
-        assert!((result.a - 0.75).abs() < EPSILON);
+        let h = result.color.hue.into_degrees() / 360.0;
+        assert!(h < EPSILON || (1.0 - h) < EPSILON);
+        assert!((result.color.saturation - 0.75).abs() < EPSILON);
+        assert!((result.color.lightness - 0.625).abs() < EPSILON);
+        assert!((result.alpha - 0.75).abs() < EPSILON);
     }
 
     #[test]

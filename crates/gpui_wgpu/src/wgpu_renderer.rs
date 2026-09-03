@@ -1240,6 +1240,7 @@ impl WgpuRenderer {
             "fs_blur_downsample",
             &layouts.globals,
             &layouts.blur,
+            None,
             wgpu::PrimitiveTopology::TriangleList,
             &[Some(no_blend_target.clone())],
             1,
@@ -1252,6 +1253,7 @@ impl WgpuRenderer {
             "fs_blur",
             &layouts.globals,
             &layouts.blur,
+            None,
             wgpu::PrimitiveTopology::TriangleList,
             &[Some(no_blend_target)],
             1,
@@ -1273,6 +1275,7 @@ impl WgpuRenderer {
             "fs_blur_composite",
             &layouts.globals,
             &layouts.blur,
+            None,
             wgpu::PrimitiveTopology::TriangleStrip,
             &[Some(premultiplied_target)],
             1,
@@ -2098,6 +2101,11 @@ impl WgpuRenderer {
                     // Surfaces are macOS-only for video playback and are not
                     // implemented by the WGPU renderer.
                     PrimitiveBatch::Surfaces(_surfaces) => {}
+                    // Blur filters are only implemented by the storage-buffer
+                    // render loop below; the WebGL2 path renders the scene
+                    // without them.
+                    PrimitiveBatch::BackdropFilters(_)
+                    | PrimitiveBatch::FilterBoundary(_) => {}
                 }
             }
         }

@@ -1476,6 +1476,7 @@ impl UrlExt for url::Url {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use path::rel_path::rel_path;
     // perf annotations replaced with #[test]
 
     #[test]
