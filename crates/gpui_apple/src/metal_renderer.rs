@@ -3,9 +3,9 @@ use anyhow::Result;
 use block::ConcreteBlock;
 use cocoa::{
     base::{NO, YES},
-    foundation::{NSSize, NSUInteger},
     quartzcore::AutoresizingMask,
 };
+use core_graphics::geometry::CGSize;
 use gpui::{
     AtlasTextureId, Background, Bounds, ContentMask, Corners, DevicePixels, FilterBoundary,
     MonochromeSprite, PaintSurface, Path, Point, PolychromeSprite, PrimitiveBatch, Quad,
@@ -34,7 +34,7 @@ use core_video::{
 use foreign_types::{ForeignType, ForeignTypeRef};
 use metal::{
     CAMetalLayer, CommandQueue, MTLGPUFamily, MTLPixelFormat, MTLResourceOptions, NSRange,
-    RenderPassColorAttachmentDescriptorRef,
+    NSUInteger, RenderPassColorAttachmentDescriptorRef,
 };
 use objc::{self, msg_send, sel, sel_impl};
 use parking_lot::Mutex;
@@ -495,16 +495,7 @@ impl MetalRenderer {
 
     pub fn update_drawable_size(&mut self, size: Size<DevicePixels>) {
         if let Some(layer) = &self.layer {
-            let ns_size = NSSize {
-                width: size.width.0 as f64,
-                height: size.height.0 as f64,
-            };
-            unsafe {
-                let _: () = msg_send![
-                    layer.as_ref(),
-                    setDrawableSize: ns_size
-                ];
-            }
+            layer.set_drawable_size(CGSize::new(size.width.0 as f64, size.height.0 as f64));
         }
         self.update_path_intermediate_textures(size);
     }
