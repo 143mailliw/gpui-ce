@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/legacy/opacity.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/opacity.rs
 use std::{fs, path::PathBuf};
 
 use anyhow::Result;
@@ -160,6 +168,9 @@ fn main() {
             base: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples"),
         })
         .run(|cx: &mut App| {
+            if !example_support::load_fonts(cx) {
+                return;
+            }
             let bounds = Bounds::centered(None, size(px(500.0), px(500.0)), cx);
             cx.open_window(
                 WindowOptions {

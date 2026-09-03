@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/legacy/tab_stop.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/tab_stop.rs
 use gpui::{
     App, Bounds, Context, Div, ElementId, FocusHandle, KeyBinding, SharedString, Stateful, Window,
     WindowBounds, WindowOptions, actions, div, prelude::*, px, size,
@@ -134,8 +142,16 @@ impl Render for Example {
     }
 }
 
+<<<<<<< HEAD:crates/gpui/examples/legacy/tab_stop.rs
 fn main() {
     gpui_platform::application().run(|cx: &mut App| {
+=======
+fn run_example() {
+    application().run(|cx: &mut App| {
+        if !example_support::load_fonts(cx) {
+            return;
+        }
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/tab_stop.rs
         cx.bind_keys([
             KeyBinding::new("tab", Tab, None),
             KeyBinding::new("shift-tab", TabPrev, None),

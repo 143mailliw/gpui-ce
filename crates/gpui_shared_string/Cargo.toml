@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "Shared immutable string types for GPUI CE"
 publish.workspace = true
 edition.workspace = true
+<<<<<<< HEAD
 license.workspace = true
+=======
+license = "Apache-2.0"
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
 
 [lib]
 path = "gpui_shared_string.rs"

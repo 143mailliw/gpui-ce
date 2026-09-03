@@ -1,4 +1,5 @@
 [package]
+<<<<<<< HEAD
 name = "gpui_ce_path"
 version = "0.2.2"
 edition = "2024"
@@ -6,6 +7,13 @@ license = "Apache-2.0"
 publish = true
 description = "Relative/absolute path types used by gpui-ce (vendored from Zed's path crate)."
 repository = "https://github.com/gpui-ce/gpui-ce"
+=======
+name = "path"
+version = "0.1.0"
+edition.workspace = true
+publish.workspace = true
+license = "Apache-2.0"
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
 
 [lib]
 name = "path"
@@ -20,4 +28,12 @@ dunce = "1.0"
 serde = { version = "1.0.221", features = ["derive", "rc"], optional = true }
 
 [dev-dependencies]
+<<<<<<< HEAD
 tempfile = "3.20.0"
+=======
+tempfile.workspace = true
+pretty_assertions.workspace = true
+
+[lints]
+workspace = true
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57

@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/legacy/window_positioning.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/window_positioning.rs
 use gpui::{
     App, Bounds, Context, DisplayId, Hsla, Pixels, SharedString, Size, Window,
     WindowBackgroundAppearance, WindowBounds, WindowKind, WindowOptions, div, point, prelude::*,
@@ -67,8 +75,16 @@ fn build_window_options(display_id: DisplayId, bounds: Bounds<Pixels>) -> Window
     }
 }
 
+<<<<<<< HEAD:crates/gpui/examples/legacy/window_positioning.rs
 fn main() {
     gpui_platform::application().run(|cx: &mut App| {
+=======
+fn run_example() {
+    application().run(|cx: &mut App| {
+        if !example_support::load_fonts(cx) {
+            return;
+        }
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/window_positioning.rs
         // Create several new windows, positioned in the top right corner of each screen
         let size = Size {
             width: px(350.),

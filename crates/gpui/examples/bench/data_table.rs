@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/bench/data_table.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/data_table.rs
 use std::{ops::Range, rc::Rc, time::Duration};
 
 use gpui::{
@@ -446,8 +454,16 @@ impl Render for DataTable {
     }
 }
 
+<<<<<<< HEAD:crates/gpui/examples/bench/data_table.rs
 fn main() {
     gpui_platform::application().run(|cx: &mut App| {
+=======
+fn run_example() {
+    application().run(|cx: &mut App| {
+        if !example_support::load_fonts(cx) {
+            return;
+        }
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/data_table.rs
         cx.open_window(
             WindowOptions {
                 focus: true,

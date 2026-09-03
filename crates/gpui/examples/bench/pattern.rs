@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/bench/pattern.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/pattern.rs
 use gpui::{
     App, AppContext, Bounds, Context, Window, WindowBounds, WindowOptions, div, linear_color_stop,
     linear_gradient, pattern_slash, prelude::*, px, rgb, size,
@@ -99,8 +107,16 @@ impl Render for PatternExample {
     }
 }
 
+<<<<<<< HEAD:crates/gpui/examples/bench/pattern.rs
 fn main() {
     gpui_platform::application().run(|cx: &mut App| {
+=======
+fn run_example() {
+    application().run(|cx: &mut App| {
+        if !example_support::load_fonts(cx) {
+            return;
+        }
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/pattern.rs
         let bounds = Bounds::centered(None, size(px(600.0), px(600.0)), cx);
         cx.open_window(
             WindowOptions {

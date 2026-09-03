@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/bench/shadow.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/shadow.rs
 use gpui::{
     App, Bounds, BoxShadow, Context, Div, SharedString, Window, WindowBounds, WindowOptions, div,
     hsla, prelude::*, px, relative, rgb, size,
@@ -584,8 +592,16 @@ impl Render for Shadow {
     }
 }
 
+<<<<<<< HEAD:crates/gpui/examples/bench/shadow.rs
 fn main() {
     gpui_platform::application().run(|cx: &mut App| {
+=======
+fn run_example() {
+    application().run(|cx: &mut App| {
+        if !example_support::load_fonts(cx) {
+            return;
+        }
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/shadow.rs
         let bounds = Bounds::centered(None, size(px(1000.0), px(800.0)), cx);
         cx.open_window(
             WindowOptions {

@@ -1475,8 +1475,6 @@ impl UrlExt for url::Url {
 
 #[cfg(test)]
 mod tests {
-    use path::rel_path::rel_path;
-
     use super::*;
     // perf annotations replaced with #[test]
 
@@ -1488,34 +1486,6 @@ mod tests {
         let parsed = PathWithPosition::parse_str("/root/Test (3)");
         assert_eq!(parsed.path, PathBuf::from("/root/Test "));
         assert_eq!(parsed.row, Some(3));
-    }
-
-    #[test]
-    fn test_join_path_uses_path_style_separator() {
-        let posix_path = PathStyle::Unix
-            .join_path(Path::new("/home/user/dev"), "worktrees")
-            .unwrap();
-        let windows_path = PathStyle::Windows
-            .join_path(Path::new("C:\\Users\\user\\dev"), "worktrees")
-            .unwrap();
-
-        assert_eq!(posix_path, PathBuf::from("/home/user/dev/worktrees"));
-        assert_eq!(
-            windows_path.to_string_lossy(),
-            "C:\\Users\\user\\dev\\worktrees"
-        );
-    }
-
-    #[test]
-    fn test_normalize_uses_path_style_separator() {
-        assert_eq!(
-            PathStyle::Unix.normalize("/home/user/dev/../worktrees/./zed"),
-            "/home/user/worktrees/zed"
-        );
-        assert_eq!(
-            PathStyle::Windows.normalize("C:\\Users\\user\\dev\\worktrees"),
-            "C:\\Users\\user\\dev\\worktrees"
-        );
     }
 
     fn rel_path_entry(path: &'static str, is_file: bool) -> (&'static RelPath, bool) {
@@ -3077,6 +3047,7 @@ mod tests {
         assert_eq!(strip_path_suffix(base, suffix), None);
     }
 
+<<<<<<< HEAD
     #[test]
     fn test_strip_prefix() {
         let expected = [
@@ -3160,6 +3131,8 @@ mod tests {
         pretty_assertions::assert_eq!(actual, expected);
     }
 
+=======
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
     #[cfg(target_os = "windows")]
     #[test]
     fn test_wsl_path() {

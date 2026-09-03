@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/legacy/image_loading.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/image_loading.rs
 use std::{path::Path, sync::Arc, time::Duration};
 
 use gpui::{
@@ -195,6 +203,31 @@ impl Render for ImageLoadingExample {
     }
 }
 
+<<<<<<< HEAD:crates/gpui/examples/legacy/image_loading.rs
+=======
+fn run_example() {
+    application().with_assets(Assets {}).run(|cx: &mut App| {
+        if !example_support::load_fonts(cx) {
+            return;
+        }
+        let options = WindowOptions {
+            window_bounds: Some(WindowBounds::Windowed(Bounds::centered(
+                None,
+                size(px(300.), px(300.)),
+                cx,
+            ))),
+            ..Default::default()
+        };
+        cx.open_window(options, |_, cx| {
+            cx.activate(false);
+            cx.new(|_| ImageLoadingExample {})
+        })
+        .unwrap();
+    });
+}
+
+#[cfg(not(target_family = "wasm"))]
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/image_loading.rs
 fn main() {
     env_logger::init();
     gpui_platform::application()

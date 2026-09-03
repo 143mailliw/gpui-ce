@@ -1,3 +1,11 @@
+<<<<<<< HEAD:crates/gpui/examples/legacy/gradient.rs
+=======
+#![cfg_attr(target_family = "wasm", no_main)]
+
+#[path = "example_support/fonts.rs"]
+mod example_support;
+
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/gradient.rs
 use gpui::{
     App, Bounds, ColorSpace, Context, Half, Render, Window, WindowOptions, canvas, div,
     linear_color_stop, linear_gradient, point, prelude::*, px, size,
@@ -242,8 +250,16 @@ impl Render for GradientViewer {
     }
 }
 
+<<<<<<< HEAD:crates/gpui/examples/legacy/gradient.rs
 fn main() {
     gpui_platform::application().run(|cx: &mut App| {
+=======
+fn run_example() {
+    application().run(|cx: &mut App| {
+        if !example_support::load_fonts(cx) {
+            return;
+        }
+>>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/gradient.rs
         cx.open_window(
             WindowOptions {
                 focus: true,
