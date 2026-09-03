@@ -1,16 +1,14 @@
-<<<<<<< HEAD:crates/gpui/examples/bench/paths_bench.rs
-=======
 #![cfg_attr(target_family = "wasm", no_main)]
 
-#[path = "example_support/fonts.rs"]
+#[path = "../example_support/fonts.rs"]
 mod example_support;
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/paths_bench.rs
 use gpui::{
     Background, Bounds, ColorSpace, Context, Path, PathBuilder, Pixels, Render, TitlebarOptions,
     Window, WindowBounds, WindowOptions, canvas, div, linear_color_stop, linear_gradient, point,
     prelude::*, px, rgb, size,
 };
+use gpui_platform::application;
 
 const DEFAULT_WINDOW_WIDTH: Pixels = px(1024.0);
 const DEFAULT_WINDOW_HEIGHT: Pixels = px(768.0);
@@ -76,16 +74,11 @@ impl Render for PaintingViewer {
     }
 }
 
-<<<<<<< HEAD:crates/gpui/examples/bench/paths_bench.rs
-fn main() {
-    gpui_platform::application().run(|cx| {
-=======
 fn run_example() {
     application().run(|cx| {
         if !example_support::load_fonts(cx) {
             return;
         }
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/paths_bench.rs
         cx.open_window(
             WindowOptions {
                 titlebar: Some(TitlebarOptions {
@@ -105,4 +98,17 @@ fn run_example() {
         .unwrap();
         cx.activate(true);
     });
+}
+
+#[cfg(not(target_family = "wasm"))]
+fn main() {
+    env_logger::init();
+    run_example();
+}
+
+#[cfg(target_family = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() {
+    gpui_platform::web_init();
+    run_example();
 }

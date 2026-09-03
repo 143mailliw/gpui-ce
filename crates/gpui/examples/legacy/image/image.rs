@@ -1,11 +1,8 @@
-<<<<<<< HEAD:crates/gpui/examples/legacy/image/image.rs
-=======
 #![cfg_attr(target_family = "wasm", no_main)]
 
-#[path = "../example_support/fonts.rs"]
+#[path = "../../example_support/fonts.rs"]
 mod example_support;
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/image/image.rs
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -153,8 +150,6 @@ impl Render for ImageShowcase {
 
 actions!(image, [Quit]);
 
-<<<<<<< HEAD:crates/gpui/examples/legacy/image/image.rs
-=======
 fn run_example() {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
 
@@ -163,17 +158,14 @@ fn run_example() {
     #[cfg(target_family = "wasm")]
     let app = gpui_platform::application();
     app.with_assets(Assets {
-        base: manifest_dir.join("examples"),
+        base: manifest_dir.join("examples/legacy"),
     })
     .run(move |cx: &mut App| {
         if !example_support::load_fonts(cx) {
             return;
         }
         #[cfg(not(target_family = "wasm"))]
-        {
-            let http_client = ReqwestClient::user_agent("gpui example").unwrap();
-            cx.set_http_client(Arc::new(http_client));
-        }
+        cx.set_http_client(Arc::new(gpui::http_client::BlockedHttpClient::new()));
 
         cx.activate(true);
         cx.on_action(|_: &Quit, cx| cx.quit());
@@ -203,7 +195,7 @@ fn run_example() {
             cx.new(|_| ImageShowcase {
                 // Relative path to your root project path
                 local_resource: manifest_dir
-                    .join("examples/image/exif-orientation-rotate-180.jpg")
+                    .join("examples/legacy/image/exif-orientation-rotate-180.jpg")
                     .into(),
                 remote_resource: "https://picsum.photos/800/400".into(),
                 asset_resource: "image/color.svg".into(),
@@ -214,50 +206,14 @@ fn run_example() {
 }
 
 #[cfg(not(target_family = "wasm"))]
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/image/image.rs
 fn main() {
     env_logger::init();
+    run_example();
+}
 
-    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-
-    gpui_platform::application()
-        .with_assets(Assets {
-            base: manifest_dir.join("examples"),
-        })
-        .run(move |cx: &mut App| {
-            cx.set_http_client(Arc::new(gpui::http_client::BlockedHttpClient::new()));
-
-            cx.activate(true);
-            cx.on_action(|_: &Quit, cx| cx.quit());
-            cx.bind_keys([KeyBinding::new("cmd-q", Quit, None)]);
-            cx.set_menus(vec![Menu {
-                name: "Image".into(),
-                items: vec![MenuItem::action("Quit", Quit)],
-            }]);
-
-            let window_options = WindowOptions {
-                titlebar: Some(TitlebarOptions {
-                    title: Some(SharedString::from("Image Example")),
-                    appears_transparent: false,
-                    ..Default::default()
-                }),
-
-                window_bounds: Some(WindowBounds::Windowed(Bounds {
-                    size: size(px(1100.), px(600.)),
-                    origin: Point::new(px(200.), px(200.)),
-                })),
-
-                ..Default::default()
-            };
-
-            cx.open_window(window_options, |_, cx| {
-                cx.new(|_| ImageShowcase {
-                    // Relative path to your root project path
-                    local_resource: manifest_dir.join("examples/image/app-icon.png").into(),
-                    remote_resource: "https://picsum.photos/800/400".into(),
-                    asset_resource: "image/color.svg".into(),
-                })
-            })
-            .unwrap();
-        });
+#[cfg(target_family = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() {
+    gpui_platform::web_init();
+    run_example();
 }

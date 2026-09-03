@@ -1488,14 +1488,10 @@ impl Dispatch<WlCallback, ObjectId> for WaylandClientStatePtr {
         drop(state);
 
         if let wl_callback::Event::Done { .. } = event {
-<<<<<<< HEAD
-            window.frame();
+            window.frame_callback_fired();
             if let Some((window, input)) = kinetic_input {
                 window.handle_input(input);
             }
-=======
-            window.frame_callback_fired();
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
         }
     }
 }

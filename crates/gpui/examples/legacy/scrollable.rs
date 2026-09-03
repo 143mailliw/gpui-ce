@@ -1,12 +1,10 @@
-<<<<<<< HEAD:crates/gpui/examples/legacy/scrollable.rs
-=======
 #![cfg_attr(target_family = "wasm", no_main)]
 
-#[path = "example_support/fonts.rs"]
+#[path = "../example_support/fonts.rs"]
 mod example_support;
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/scrollable.rs
 use gpui::{App, Bounds, Context, Window, WindowBounds, WindowOptions, div, prelude::*, px, size};
+use gpui_platform::application;
 use palette::WithAlpha;
 
 struct Scrollable {}
@@ -50,16 +48,11 @@ impl Render for Scrollable {
     }
 }
 
-<<<<<<< HEAD:crates/gpui/examples/legacy/scrollable.rs
-fn main() {
-    gpui_platform::application().run(|cx: &mut App| {
-=======
 fn run_example() {
     application().run(|cx: &mut App| {
         if !example_support::load_fonts(cx) {
             return;
         }
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/scrollable.rs
         let bounds = Bounds::centered(None, size(px(500.), px(500.0)), cx);
         cx.open_window(
             WindowOptions {
@@ -71,4 +64,17 @@ fn run_example() {
         .unwrap();
         cx.activate(true);
     });
+}
+
+#[cfg(not(target_family = "wasm"))]
+fn main() {
+    env_logger::init();
+    run_example();
+}
+
+#[cfg(target_family = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() {
+    gpui_platform::web_init();
+    run_example();
 }

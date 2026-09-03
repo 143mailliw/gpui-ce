@@ -1,16 +1,9 @@
 use crate::{
-<<<<<<< HEAD
-    App, Bounds, DevicePixels, Half, LineLayout, Pixels, Point, RenderGlyphParams, Result,
-    ShapedGlyph, ShapedRun, SharedString, StrikethroughStyle, TextAlign, UnderlineStyle, Window,
-    WrapBoundary, WrappedLineLayout, black, fill, point, px, size,
-=======
     App, Bounds, DevicePixels, Half, Hsla, LineLayout, Pixels, Point, RenderGlyphParams, Result,
     SharedString, StrikethroughStyle, TextAlign, UnderlineStyle, Window, WrapBoundary,
     WrappedLineLayout, black, fill, point, px, size,
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
 };
 use derive_more::{Deref, DerefMut};
-use palette::Hsla;
 use smallvec::SmallVec;
 use std::sync::Arc;
 

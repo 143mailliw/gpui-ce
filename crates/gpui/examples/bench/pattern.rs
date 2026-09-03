@@ -1,15 +1,13 @@
-<<<<<<< HEAD:crates/gpui/examples/bench/pattern.rs
-=======
 #![cfg_attr(target_family = "wasm", no_main)]
 
-#[path = "example_support/fonts.rs"]
+#[path = "../example_support/fonts.rs"]
 mod example_support;
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/pattern.rs
 use gpui::{
     App, AppContext, Bounds, Context, Window, WindowBounds, WindowOptions, div, linear_color_stop,
     linear_gradient, pattern_slash, prelude::*, px, rgb, size,
 };
+use gpui_platform::application;
 use palette::WithAlpha;
 
 struct PatternExample;
@@ -107,16 +105,11 @@ impl Render for PatternExample {
     }
 }
 
-<<<<<<< HEAD:crates/gpui/examples/bench/pattern.rs
-fn main() {
-    gpui_platform::application().run(|cx: &mut App| {
-=======
 fn run_example() {
     application().run(|cx: &mut App| {
         if !example_support::load_fonts(cx) {
             return;
         }
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/pattern.rs
         let bounds = Bounds::centered(None, size(px(600.0), px(600.0)), cx);
         cx.open_window(
             WindowOptions {
@@ -129,4 +122,17 @@ fn run_example() {
 
         cx.activate(true);
     });
+}
+
+#[cfg(not(target_family = "wasm"))]
+fn main() {
+    env_logger::init();
+    run_example();
+}
+
+#[cfg(target_family = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() {
+    gpui_platform::web_init();
+    run_example();
 }

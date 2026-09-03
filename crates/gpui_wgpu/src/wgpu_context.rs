@@ -221,10 +221,7 @@ impl WgpuContext {
 
         let device_lost = Arc::new(AtomicBool::new(false));
         let (device, queue, dual_source_blending, color_texture_format) =
-<<<<<<< HEAD
             Self::create_device(&adapter, None).await?;
-=======
-            Self::create_device(&adapter).await?;
         device.set_device_lost_callback({
             let device_lost = Arc::clone(&device_lost);
             move |reason, message| {
@@ -240,7 +237,6 @@ impl WgpuContext {
             adapter_info.name,
             device.limits(),
         );
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
 
         let context = Self {
             instance,
@@ -275,7 +271,7 @@ impl WgpuContext {
 
         let color_atlas_texture_format = Self::select_color_texture_format(adapter)?;
         #[cfg(target_family = "wasm")]
-        let required_limits = if adapter.get_info().backend == wgpu::Backend::Gl {
+        let mut required_limits = if adapter.get_info().backend == wgpu::Backend::Gl {
             wgpu::Limits::downlevel_webgl2_defaults()
                 .using_resolution(adapter.limits())
                 .using_alignment(adapter.limits())
@@ -285,10 +281,6 @@ impl WgpuContext {
                 .using_alignment(adapter.limits())
         };
         #[cfg(not(target_family = "wasm"))]
-        let required_limits = wgpu::Limits::downlevel_defaults()
-            .using_resolution(adapter.limits())
-            .using_alignment(adapter.limits());
-
         let mut required_limits = wgpu::Limits::downlevel_defaults()
             .using_resolution(adapter.limits())
             .using_alignment(adapter.limits());

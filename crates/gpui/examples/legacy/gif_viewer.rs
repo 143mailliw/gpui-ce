@@ -1,12 +1,10 @@
-<<<<<<< HEAD:crates/gpui/examples/legacy/gif_viewer.rs
-=======
 #![cfg_attr(target_family = "wasm", no_main)]
 
-#[path = "example_support/fonts.rs"]
+#[path = "../example_support/fonts.rs"]
 mod example_support;
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/gif_viewer.rs
 use gpui::{App, Context, Render, Window, WindowOptions, div, img, prelude::*};
+use gpui_platform::application;
 use std::path::PathBuf;
 
 struct GifViewer {
@@ -30,21 +28,13 @@ impl Render for GifViewer {
     }
 }
 
-<<<<<<< HEAD:crates/gpui/examples/legacy/gif_viewer.rs
-fn main() {
-    env_logger::init();
-    gpui_platform::application().run(|cx: &mut App| {
-        let gif_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("examples/legacy/image/black-cat-typing.gif");
-=======
 fn run_example() {
     application().run(|cx: &mut App| {
         if !example_support::load_fonts(cx) {
             return;
         }
-        let gif_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples/image/black-cat-typing.gif");
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/gif_viewer.rs
+        let gif_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("examples/legacy/image/black-cat-typing.gif");
 
         cx.open_window(
             WindowOptions {
@@ -56,4 +46,17 @@ fn run_example() {
         .unwrap();
         cx.activate(true);
     });
+}
+
+#[cfg(not(target_family = "wasm"))]
+fn main() {
+    env_logger::init();
+    run_example();
+}
+
+#[cfg(target_family = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() {
+    gpui_platform::web_init();
+    run_example();
 }

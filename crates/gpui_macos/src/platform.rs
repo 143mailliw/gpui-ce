@@ -247,13 +247,9 @@ impl MacPlatform {
             keyboard_mapper,
             cursor_visible: Arc::new(AtomicBool::new(true)),
             system_notifications: crate::system_notifications::SystemNotificationState::new(),
-<<<<<<< HEAD
             haptics: MacHaptics::new(headless),
-        }))
-=======
         });
         Self(state, marker)
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
     }
 
     unsafe fn create_menu_bar(

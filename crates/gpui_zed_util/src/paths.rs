@@ -3047,7 +3047,6 @@ mod tests {
         assert_eq!(strip_path_suffix(base, suffix), None);
     }
 
-<<<<<<< HEAD
     #[test]
     fn test_strip_prefix() {
         let expected = [
@@ -3130,9 +3129,6 @@ mod tests {
         });
         pretty_assertions::assert_eq!(actual, expected);
     }
-
-=======
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
     #[cfg(target_os = "windows")]
     #[test]
     fn test_wsl_path() {

@@ -17,12 +17,8 @@ mod window;
 
 pub use dispatcher::WebDispatcher;
 pub use display::WebDisplay;
-<<<<<<< HEAD
-pub use http_client::FetchHttpClient;
-=======
 pub use gpui_wgpu::WebBackendPreference;
-pub use http_client::{FetchCredentials, FetchHttpClient};
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
+pub use http_client::FetchHttpClient;
 pub use keyboard::WebKeyboardLayout;
 pub use logging::init_logging;
 pub use platform::{WebPlatform, WebWindowError};

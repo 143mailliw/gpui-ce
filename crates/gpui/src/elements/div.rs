@@ -3187,12 +3187,8 @@ impl Interactivity {
                     .pending_mouse_down
                     .get_or_insert_with(Default::default)
                     .clone();
-<<<<<<< HEAD
                 let hover_listeners = self.hover_listeners.clone();
-=======
-                let hover_listener = Rc::new(hover_listener);
                 let hover_listener_state = was_hovered.clone();
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
                 let update_hover = move |is_hovered: bool, window: &mut Window, cx: &mut App| {
                     let mut was_hovered = hover_listener_state.borrow_mut();
                     if is_hovered != *was_hovered {

@@ -1058,17 +1058,13 @@ impl WindowsPlatformInner {
             WM_GPUI_TASK_DISPATCHED_ON_MAIN_THREAD => self.run_foreground_task(),
             WM_GPUI_DOCK_MENU_ACTION => self.handle_dock_action_event(lparam.0 as _),
             WM_GPUI_KEYBOARD_LAYOUT_CHANGED => self.handle_keyboard_layout_change(),
-<<<<<<< HEAD
             WM_GPUI_GPU_DEVICE_LOST => {
                 #[cfg(not(feature = "wgpu"))]
                 return self.handle_device_lost(lparam);
                 #[cfg(feature = "wgpu")]
                 Some(0)
             }
-=======
-            WM_GPUI_GPU_DEVICE_LOST => self.handle_device_lost(lparam),
             WM_GPUI_END_SESSION => self.handle_end_session(),
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
             _ => unreachable!(),
         }
     }

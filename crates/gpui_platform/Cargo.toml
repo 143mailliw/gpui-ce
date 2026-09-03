@@ -16,18 +16,8 @@ path = "src/gpui_platform.rs"
 default = []
 bench-support = ["gpui/bench-support", "gpui_macos/bench-support"]
 font-kit = ["gpui_macos/font-kit"]
-<<<<<<< HEAD
-test-support = ["gpui/test-support", "gpui_macos/test-support"]
-screen-capture = [
-  "gpui/screen-capture",
-  "gpui_macos/screen-capture",
-  "gpui_windows/screen-capture",
-  "gpui_linux/screen-capture",
-]
-=======
 test-support = ["gpui/test-support", "gpui_macos/test-support", "gpui_windows/test-support"]
 screen-capture = ["gpui/screen-capture", "gpui_macos/screen-capture", "gpui_windows/screen-capture", "gpui_linux/screen-capture"]
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
 runtime_shaders = ["gpui_macos/runtime_shaders"]
 wayland = ["gpui_linux/wayland"]
 x11 = ["gpui_linux/x11"]

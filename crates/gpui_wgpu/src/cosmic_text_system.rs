@@ -629,51 +629,27 @@ impl CosmicTextSystemState {
                 continue;
             };
 
-<<<<<<< HEAD
-            let primary_family_name: SharedString = first_family.0.clone().into();
-            let primary_stretch = face.stretch;
-            let primary_style = face.style;
-            let primary_weight = face.weight;
-            let primary_features = loaded_font.features.clone();
-            let fallback_chain = Arc::clone(&loaded_font.user_fallback_chain);
             let letter_spacing = run
                 .letter_spacing
                 .map(|spacing| spacing.as_f32() / font_size.as_f32());
 
             // build one `Attrs` per slot up front. each clone of span attrs
             // would otherwise re-allocate the `font_features` Vec.
-            let mut primary_attrs = Attrs::new()
-                .metadata(run.font_id.0)
-                .family(Family::Name(&primary_family_name))
-                .stretch(primary_stretch)
-                .style(primary_style)
-                .weight(primary_weight)
-                .font_features(primary_features.clone());
+            let mut primary_attrs =
+                properties.attributes(run.font_id, &properties.primary_family_name);
             if let Some(letter_spacing) = letter_spacing {
                 primary_attrs = primary_attrs.letter_spacing(letter_spacing);
             }
-            let fallback_attrs: SmallVec<[Attrs<'_>; 4]> = fallback_chain
+            let fallback_attrs: SmallVec<[Attrs<'_>; 4]> = properties
+                .fallback_chain
                 .iter()
-                .map(|(fb_id, fb_name)| {
-                    let mut attrs = Attrs::new()
-                        .metadata(fb_id.0)
-                        .family(Family::Name(fb_name))
-                        .stretch(primary_stretch)
-                        .style(primary_style)
-                        .weight(primary_weight)
-                        .font_features(primary_features.clone());
+                .map(|(font_id, family_name)| {
+                    let mut attrs = properties.attributes(*font_id, family_name);
                     if let Some(letter_spacing) = letter_spacing {
                         attrs = attrs.letter_spacing(letter_spacing);
                     }
                     attrs
                 })
-=======
-            let primary_attrs = properties.attributes(run.font_id, &properties.primary_family_name);
-            let fallback_attrs: SmallVec<[Attrs<'_>; 4]> = properties
-                .fallback_chain
-                .iter()
-                .map(|(font_id, family_name)| properties.attributes(*font_id, family_name))
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
                 .collect();
 
             let spans = if properties.fallback_chain.is_empty() {

@@ -1,15 +1,13 @@
-<<<<<<< HEAD:crates/gpui/examples/legacy/focus_visible.rs
-=======
 #![cfg_attr(target_family = "wasm", no_main)]
 
-#[path = "example_support/fonts.rs"]
+#[path = "../example_support/fonts.rs"]
 mod example_support;
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/focus_visible.rs
 use gpui::{
     App, Bounds, Context, Div, ElementId, FocusHandle, KeyBinding, SharedString, Stateful, Window,
     WindowBounds, WindowOptions, actions, div, prelude::*, px, size,
 };
+use gpui_platform::application;
 
 actions!(example, [Tab, TabPrev, Quit]);
 
@@ -199,16 +197,11 @@ impl Render for Example {
     }
 }
 
-<<<<<<< HEAD:crates/gpui/examples/legacy/focus_visible.rs
-fn main() {
-    gpui_platform::application().run(|cx: &mut App| {
-=======
 fn run_example() {
     application().run(|cx: &mut App| {
         if !example_support::load_fonts(cx) {
             return;
         }
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/focus_visible.rs
         cx.bind_keys([
             KeyBinding::new("tab", Tab, None),
             KeyBinding::new("shift-tab", TabPrev, None),
@@ -227,4 +220,17 @@ fn run_example() {
 
         cx.activate(true);
     });
+}
+
+#[cfg(not(target_family = "wasm"))]
+fn main() {
+    env_logger::init();
+    run_example();
+}
+
+#[cfg(target_family = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() {
+    gpui_platform::web_init();
+    run_example();
 }

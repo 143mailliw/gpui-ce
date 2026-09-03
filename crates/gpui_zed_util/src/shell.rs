@@ -86,11 +86,6 @@ pub fn get_default_system_shell() -> String {
 
 /// Get the default system shell, preferring bash on Windows.
 pub fn get_default_system_shell_preferring_bash() -> String {
-<<<<<<< HEAD
-    if cfg!(windows) {
-        get_windows_bash().unwrap_or_else(get_windows_system_shell)
-    } else {
-=======
     #[cfg(windows)]
     {
         get_windows_bash().unwrap_or_else(|| get_windows_system_shell())
@@ -98,7 +93,6 @@ pub fn get_default_system_shell_preferring_bash() -> String {
 
     #[cfg(not(windows))]
     {
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
         "/bin/sh".to_string()
     }
 }
@@ -111,6 +105,12 @@ pub fn get_windows_bash() -> Option<String> {
         }
         let bash = install_root.join("bin").join("bash.exe");
         bash.is_file().then_some(bash)
+    }
+
+    fn find_bash_in_scoop() -> Option<PathBuf> {
+        let bash_exe =
+            PathBuf::from(std::env::var_os("USERPROFILE")?).join("scoop\\shims\\bash.exe");
+        bash_exe.exists().then_some(bash_exe)
     }
 
     fn find_bash_in_git() -> Option<PathBuf> {
@@ -127,13 +127,9 @@ pub fn get_windows_bash() -> Option<String> {
     }
 
     static BASH: LazyLock<Option<String>> = LazyLock::new(|| {
-<<<<<<< HEAD
         let bash = find_bash_in_scoop()
             .or_else(find_bash_in_git)
             .map(|p| p.to_string_lossy().into_owned());
-=======
-        let bash = find_bash_in_git().map(|p| p.to_string_lossy().into_owned());
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
         if let Some(ref path) = bash {
             log::info!("Found bash at {}", path);
         }

@@ -12,14 +12,11 @@ name = "util"
 path = "src/util.rs"
 doctest = true
 
-<<<<<<< HEAD
-=======
 [features]
-test-support = ["rand", "util_macros", "path/test-support"]
+test-support = ["path/test-support"]
 # Embed `fs_embed!` assets at compile time even in debug builds.
 debug-embed = ["rust-embed/debug-embed"]
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
 [dependencies]
 anyhow = "1.0.86"
 async_zip = { version = "0.0.18", features = ["deflate", "deflate64"] }
@@ -70,17 +67,8 @@ tendril = "0.5"
 windows.workspace = true
 
 [dev-dependencies]
-<<<<<<< HEAD
 pretty_assertions = { version = "1.3.0", features = ["unstable"] }
-rand = "0.9"
+rand.workspace = true
 path = { package = "gpui_ce_path", version = "0.2.2", path = "../gpui_path", features = [
   "test-support",
 ] }
-
-[features]
-test-support = ["path/test-support"]
-=======
-rand.workspace = true
-util_macros.workspace = true
-path = { workspace = true, features = ["test-support"] }
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57

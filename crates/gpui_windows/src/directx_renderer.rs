@@ -621,15 +621,11 @@ impl DirectXRenderer {
                 )
             })?;
         }
-<<<<<<< HEAD
-
         // Present the offscreen scene by blitting it into the swapchain.
         if use_offscreen {
             self.dx_blit(&scene_srv, &swapchain_rtv)?;
         }
         self.active_render_target = None;
-        self.present()
-=======
         Ok(())
     }
 
@@ -709,7 +705,6 @@ impl DirectXRenderer {
         }
         image::RgbaImage::from_raw(width, height, pixels)
             .context("Failed to build RgbaImage from staging readback")
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
     }
 
     pub(crate) fn resize(&mut self, new_size: Size<DevicePixels>) -> Result<()> {
@@ -1550,7 +1545,6 @@ struct GlobalParams {
     _pad: [u32; 3],
 }
 
-<<<<<<< HEAD
 /// Mirrors the `BlurParams` cbuffer (register b1) in `shaders.hlsl`. 80 bytes (a multiple of 16,
 /// as constant buffers require). Updated per blur pass via `update_buffer`.
 #[repr(C)]
@@ -1591,7 +1585,6 @@ impl Default for BlurParams {
         }
     }
 }
-=======
 #[derive(Clone, Copy, Debug, Default)]
 #[repr(C, align(16))]
 struct BatchParams {
@@ -1600,7 +1593,6 @@ struct BatchParams {
 }
 
 const _: () = assert!(std::mem::size_of::<BatchParams>() == 16);
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57
 
 struct PipelineState<T> {
     label: &'static str,

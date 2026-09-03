@@ -1,15 +1,13 @@
-<<<<<<< HEAD:crates/gpui/examples/bench/shadow.rs
-=======
 #![cfg_attr(target_family = "wasm", no_main)]
 
-#[path = "example_support/fonts.rs"]
+#[path = "../example_support/fonts.rs"]
 mod example_support;
 
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/shadow.rs
 use gpui::{
     App, Bounds, BoxShadow, Context, Div, SharedString, Window, WindowBounds, WindowOptions, div,
     hsla, prelude::*, px, relative, rgb, size,
 };
+use gpui_platform::application;
 
 struct Shadow {}
 
@@ -592,16 +590,11 @@ impl Render for Shadow {
     }
 }
 
-<<<<<<< HEAD:crates/gpui/examples/bench/shadow.rs
-fn main() {
-    gpui_platform::application().run(|cx: &mut App| {
-=======
 fn run_example() {
     application().run(|cx: &mut App| {
         if !example_support::load_fonts(cx) {
             return;
         }
->>>>>>> ae625934ba7c510bdf18099911e025fc9bee4e57:crates/gpui/examples/shadow.rs
         let bounds = Bounds::centered(None, size(px(1000.0), px(800.0)), cx);
         cx.open_window(
             WindowOptions {
@@ -614,4 +607,17 @@ fn run_example() {
 
         cx.activate(true);
     });
+}
+
+#[cfg(not(target_family = "wasm"))]
+fn main() {
+    env_logger::init();
+    run_example();
+}
+
+#[cfg(target_family = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen(start)]
+pub fn start() {
+    gpui_platform::web_init();
+    run_example();
 }
