@@ -8,9 +8,9 @@ trailer) but carrying only the tracked crates/gpui* trees. Merging its tip repla
 the upstream delta since the last sync (already-cherry-picked changes no-op) while every
 upstream commit stays in the merge's second-parent history. A conflicted merge is committed
 as TWO commits for reviewability: the raw merge with conflict markers committed in, then
-the agent's resolution as a separate, auditable diff. Build fixes land in a third commit.
+claude's resolution as a separate, auditable diff. Build fixes land in a third commit.
 
-Local-only: this never pushes, and never lets the agent push.
+Local-only: this never pushes, and never lets claude push.
 
 Usage:
   sync_upstream.py bootstrap [BASELINE_SHA]   # one-time setup (see README)
@@ -19,8 +19,8 @@ Usage:
 
 Options (sync):
   --ref REF        upstream ref to sync to (default: main / SYNC_ZED_REF)
-  --model NAME     agent model as provider/model (default: opencode default / SYNC_MODEL)
-  --retries N      max agent passes per phase (default: 3 / SYNC_RETRIES)
+  --model NAME     claude model (default: opus / SYNC_MODEL)
+  --retries N      max claude passes per phase (default: 3 / SYNC_RETRIES)
   --no-bump        don't bump pinned zed git-dep revs (no-op since PR #91 removed them)
   --dry-run        show what would be synced, then stop
 """
@@ -101,17 +101,21 @@ TRACKED_CRATES: dict[str, str] = {
 
 VENDOR_BRANCH: str = _env("SYNC_VENDOR_BRANCH", "vendor/zed-gpui")
 
-# Agent binary: `opencode2 run "<prompt>"` is the non-interactive entrypoint (the top-level
-# `--prompt` flag only pre-fills the TUI, so it is not suitable for scripting).
-# SYNC_CLAUDE_BIN / SYNC_CLAUDE_TIMEOUT are honored as legacy fallbacks.
-AGENT_BIN: str = os.environ.get("SYNC_OPENCODE_BIN", os.environ.get("SYNC_CLAUDE_BIN", "opencode2"))
+CLAUDE_BIN: str = _env("SYNC_CLAUDE_BIN", "claude")
 # Per-invocation wall-clock cap (seconds); 0 disables. The real safety bound — hitting it
 # is non-fatal (the loop re-checks progress and retries).
-AGENT_TIMEOUT: int = int(os.environ.get("SYNC_AGENT_TIMEOUT", os.environ.get("SYNC_CLAUDE_TIMEOUT", "1800")))
-# Auto-approve permissions that are not explicitly denied, so non-interactive runs can edit
-# files without hanging on approval prompts. Git staging/commits are done here, never by
-# the agent; push is never allowed.
-AGENT_AUTO: bool = os.environ.get("SYNC_AGENT_AUTO", "1") == "1"
+CLAUDE_TIMEOUT: int = int(_env("SYNC_CLAUDE_TIMEOUT", "1800"))
+# Optional cap on claude's agentic turns per invocation (0 = no cap, the default).
+CLAUDE_MAX_TURNS: int = int(_env("SYNC_CLAUDE_MAX_TURNS", "0"))
+# Edits/writes are auto-accepted via --permission-mode acceptEdits; the rest are
+# read-only/build helpers. Git staging/commits are done here, never by claude; push is
+# never allowed.
+_DEFAULT_ALLOWED_TOOLS: str = (
+    "Read Edit Write Grep Glob Bash(cargo check:*) Bash(cargo build:*) "
+    "Bash(cargo metadata:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) "
+    "Bash(rg:*) Bash(grep:*) Bash(ls:*) Bash(cat:*) Bash(sed:*) Bash(find:*)"
+)
+CLAUDE_ALLOWED_TOOLS: str = _env("SYNC_CLAUDE_ALLOWED_TOOLS", _DEFAULT_ALLOWED_TOOLS)
 
 # Post-merge gates (host-buildable crates only; macOS/Windows changes need their own
 # platform or CI). The verify-fix loop runs the build gate, then the test gate.
@@ -138,7 +142,7 @@ class Runtime:
 
 RT = Runtime(
     zed_ref=_env("SYNC_ZED_REF", "main"),
-    model=_env("SYNC_MODEL", ""),
+    model=_env("SYNC_MODEL", "opus"),
     retries=int(_env("SYNC_RETRIES", "3")),
     bump_zed_deps=_env("SYNC_BUMP_ZED_DEPS", "1") == "1",
     dry_run=False,
@@ -338,7 +342,7 @@ def detect_moves(base: str, tip: str) -> dict[str, str]:
     return moves
 
 
-# agent invocation
+# claude invocation
 def render_prompt(kind: str, files: list[str], issue: str = "",
                   moves: dict[str, str] | None = None) -> str:
     if kind == "resolve":
@@ -372,20 +376,23 @@ def render_prompt(kind: str, files: list[str], issue: str = "",
     return f"{head}\n\nCommand: `{cmd_used}`\nRecent output (tail):\n{block}\n\n{body}"
 
 
-def run_agent(prompt: str) -> None:
-    """Invoke `opencode2 run`. Never fatal: a timeout exits non-zero AFTER useful work, so
+def run_claude(prompt: str) -> None:
+    """Invoke claude -p. Never fatal: max-turns/timeout exit non-zero AFTER useful work, so
     the surrounding loop re-checks real progress and retries up to RT.retries."""
-    cmd = [AGENT_BIN, "run", prompt]
-    if RT.model:
-        cmd += ["--model", RT.model]
-    if AGENT_AUTO:
-        cmd += ["--auto"]
+    cmd = [
+        CLAUDE_BIN, "-p", prompt,
+        "--model", RT.model,
+        "--permission-mode", "acceptEdits",
+        "--allowedTools", CLAUDE_ALLOWED_TOOLS,
+    ]
+    if CLAUDE_MAX_TURNS > 0:
+        cmd += ["--max-turns", str(CLAUDE_MAX_TURNS)]
     try:
-        result = subprocess.run(cmd, cwd=REPO_ROOT, timeout=AGENT_TIMEOUT or None)
+        result = subprocess.run(cmd, cwd=REPO_ROOT, timeout=CLAUDE_TIMEOUT or None)
         if result.returncode != 0:
-            warn(f"agent exited non-zero ({result.returncode}) — re-checking progress, may retry")
+            warn(f"claude exited non-zero ({result.returncode}; likely --max-turns) — re-checking progress, may retry")
     except subprocess.TimeoutExpired:
-        warn(f"agent hit the {AGENT_TIMEOUT}s timeout — re-checking progress, may retry")
+        warn(f"claude hit the {CLAUDE_TIMEOUT}s timeout — re-checking progress, may retry")
 
 
 # conflict detection / resolution
@@ -412,12 +419,12 @@ def has_unresolved() -> bool:
 
 
 def auto_resolve_add_delete(moves: dict[str, str] | None = None) -> None:
-    """Settle add/delete conflicts the agent can't express via edits:
+    """Settle add/delete conflicts claude can't express via edits:
     DU = deleted by us (gpui-ce), modified by them -> keep gpui-ce's deletion;
     UD = modified by us, deleted by them            -> keep gpui-ce's version (flag),
          UNLESS upstream merely RELOCATED the file to another tracked crate, in which case
          the deletion is accepted (the content arrived at the new path via this same merge)
-         and the agent is told to carry the fork's adaptations across.
+         and claude is told to carry the fork's adaptations across.
     """
     moves = moves or {}
     handled = False
@@ -453,17 +460,17 @@ def resolve_conflicts_loop(branch: str, moves: dict[str, str] | None = None) -> 
             die(f"conflict resolution failed; branch '{branch}' left for manual finishing")
         files = conflicted_files()
         before = len(files)
-        log(f"agent conflict-resolution pass {attempt}/{RT.retries} ({before} file(s) remaining)")
+        log(f"claude conflict-resolution pass {attempt}/{RT.retries} ({before} file(s) remaining)")
         for path in files:
             print(f"    {_D}conflict:{_Z} {path}")
-        run_agent(render_prompt("resolve", files, moves=moves))
+        run_claude(render_prompt("resolve", files, moves=moves))
         # Stage only tracked updates (resolves the conflicted files). NOT `-A`: conflict
-        # resolution edits existing files, so any new untracked file is the agent's scratch
+        # resolution edits existing files, so any new untracked file is claude's scratch
         # (e.g. saved base/upstream copies for diffing) and must not be swept into the commit.
         run_git("add", "-u")
         after = len(conflicted_files())
         if after > 0 and after >= before:
-            warn(f"no progress this pass ({before} → {after} files) — agent may be stuck")
+            warn(f"no progress this pass ({before} → {after} files) — claude may be stuck")
 
 
 # dependency bump (legacy no-op: PR #91 removed all zed git deps, so there is currently
@@ -521,10 +528,10 @@ def _test_issue() -> str:
 
 
 def verify_fix_loop() -> bool:
-    """Loop the build (compile errors + warnings) and test gates, fixing failures with the agent.
+    """Loop the build (compile errors + warnings) and test gates, fixing failures with claude.
 
     The build gate runs first; only once it's clean do we run tests. Any failing gate's
-    output is handed to the agent, bounded by RT.retries total fix passes.
+    output is handed to claude, bounded by RT.retries total fix passes.
     """
     attempt = 0
     while True:
@@ -538,8 +545,8 @@ def verify_fix_loop() -> bool:
         if attempt > RT.retries:
             warn(f"{issue} remain after {RT.retries} fix attempt(s); leaving branch for manual finishing")
             return False
-        log(f"agent fix pass {attempt}/{RT.retries} ({issue})")
-        run_agent(render_prompt("verify", [], issue))
+        log(f"claude fix pass {attempt}/{RT.retries} ({issue})")
+        run_claude(render_prompt("verify", [], issue))
 
 
 # state
@@ -702,7 +709,7 @@ def cmd_sync(ref: str | None) -> None:
     resolution_msg = (
         f"resolve conflicts from zed gpui sync {last[:12]}..{target[:12]}\n\n"
         "Resolution of the conflict markers left by the preceding merge commit, performed\n"
-        "by opencode2 run. Review THIS diff in isolation to audit the resolution — it shows\n"
+        "by claude -p. Review THIS diff in isolation to audit the resolution — it shows\n"
         "exactly which side/lines were chosen, distinct from what git auto-merged."
     )
 
@@ -723,8 +730,8 @@ def cmd_sync(ref: str | None) -> None:
         run_git("commit", "--no-edit", "-m", merge_raw_msg)
         ok(f"committed raw merge with conflict markers ({nconf} file(s) to resolve)")
         if nconf > 0:
-            # Commit 2: the agent's resolution of the markers — reviewable as an isolated diff.
-            warn("resolving conflict markers with the agent…")
+            # Commit 2: claude's resolution of the markers — reviewable as an isolated diff.
+            warn("resolving conflict markers with claude…")
             resolve_conflicts_loop(branch, moves)
             run_git("commit", "-m", resolution_msg)
             ok("committed conflict resolution (separate, reviewable commit)")
@@ -793,8 +800,8 @@ def main() -> int:
     _ = parser.add_argument("arg", nargs="?", default=None,
                             help="bootstrap: baseline sha; sync: upstream ref")
     _ = parser.add_argument("--ref", default=None, help="upstream ref to sync to")
-    _ = parser.add_argument("--model", default=None, help="agent model as provider/model")
-    _ = parser.add_argument("--retries", type=int, default=None, help="max agent passes per phase")
+    _ = parser.add_argument("--model", default=None, help="claude model")
+    _ = parser.add_argument("--retries", type=int, default=None, help="max claude passes per phase")
     _ = parser.add_argument("--no-bump", action="store_true", help="don't bump pinned zed git-dep revs (no-op since PR #91 removed them)")
     _ = parser.add_argument("--dry-run", action="store_true", help="show what would be synced, then stop")
     ns = parser.parse_args()

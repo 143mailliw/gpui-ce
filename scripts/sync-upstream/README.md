@@ -2,7 +2,7 @@
 
 Automated, local-only tooling to pull GPUI changes from the upstream Zed monorepo
 (`zed-industries/zed`) into this standalone fork. Conflicts and resulting build
-breakage are resolved with `opencode2 run`. **Nothing is ever pushed.**
+breakage are resolved with `claude -p`. **Nothing is ever pushed.**
 
 ## TL;DR
 
@@ -38,7 +38,7 @@ identical paths here. The script uses a **vendor-branch 3-way merge** (a general
    - **Commit 1 — raw merge:** git's auto-merges applied, conflict markers committed in
      as-is (deterministic add/delete conflicts settled by policy: gpui-ce's deletions
      kept). This captures exactly what git could *not* resolve.
-   - **Commit 2 — resolution:** `opencode2 run` (`resolve-conflicts.prompt.md`, looped up to
+   - **Commit 2 — resolution:** `claude -p` (`resolve-conflicts.prompt.md`, looped up to
      `--retries`) edits out the markers. Because it's a separate commit, its diff shows
      *exactly* what was chosen — auditable in isolation, distinct from git's auto-merge.
    (A conflict-free sync is just one clean merge commit.)
@@ -47,7 +47,7 @@ identical paths here. The script uses a **vendor-branch 3-way merge** (a general
    the test gate (`just test`). (There are no `zed-industries/zed` git deps left to bump — PR #91
    vendored everything in-tree, so the old dep-bump step is now a no-op.) Any failure — compile
    errors, warnings, or test failures —
-   is handed to `opencode2 run` (`fix-build.prompt.md`), looped up to `--retries` times, and
+   is handed to `claude -p` (`fix-build.prompt.md`), looped up to `--retries` times, and
    committed as a **third** commit. Disable tests with `SYNC_RUN_TESTS=0`, or warning
    enforcement with `SYNC_FAIL_ON_WARNINGS=0`.
 
@@ -116,9 +116,9 @@ recorded baseline advances automatically, so bootstrap is not needed again.
 
 | File | Purpose |
 |------|---------|
-| `sync_upstream.py` | orchestrator (git plumbing + `opencode2 run` loops); stdlib-only, fully typed |
-| `resolve-conflicts.prompt.md` | rules for the conflict-resolution `opencode2 run` pass |
-| `fix-build.prompt.md` | rules for the build-fix `opencode2 run` pass |
+| `sync_upstream.py` | orchestrator (git plumbing + `claude -p` loops); stdlib-only, fully typed |
+| `resolve-conflicts.prompt.md` | rules for the conflict-resolution `claude -p` pass |
+| `fix-build.prompt.md` | rules for the build-fix `claude -p` pass |
 | `state.json` | committed: last synced upstream sha + vendor tip |
 
 ## Config / env overrides
@@ -126,24 +126,21 @@ recorded baseline advances automatically, so bootstrap is not needed again.
 Every default near the top of `sync_upstream.py` is overridable via a `SYNC_*` env var:
 
 ```sh
-SYNC_MODEL=opencode/mimo-v2.5-free just sync-upstream   # override agent model (provider/model)
-SYNC_RETRIES=5    just sync-upstream                    # more agent passes
+SYNC_MODEL=sonnet just sync-upstream          # cheaper model
+SYNC_RETRIES=5    just sync-upstream           # more claude passes
 SYNC_VERIFY_CMD="just ci-test" just sync-upstream
 just sync-upstream --ref some-tag --no-bump --dry-run
 ```
-
-Agent selection: `SYNC_MODEL` (or `--model`) is passed to `opencode2 run --model` as-is; empty
-means the opencode default. Binary via `SYNC_OPENCODE_BIN` (default `opencode2`,
-`SYNC_CLAUDE_BIN` honored as a legacy fallback). Non-interactive runs auto-approve
-permissions (`--auto`) unless `SYNC_AGENT_AUTO=0`.
 
 ## Caveats
 
 - The compile gate is host-only (`just check` / `cargo check --workspace`). macOS- and
   Windows-specific changes can't be fully verified on a Linux host — verify those on the
-  platform or in CI. The build-fix prompt asks the agent to flag such changes.
-- Requires Python 3 (stdlib only — no pip installs), the `opencode2` CLI on `PATH`, and a
+  platform or in CI. The build-fix prompt asks claude to flag such changes.
+- Requires Python 3 (stdlib only — no pip installs), the `claude` CLI on `PATH`, and a
   working `just` + Rust toolchain. The `just` recipes shell out to `sync_upstream.py`.
 - If conflict resolution exhausts its retries, the branch is left mid-merge for you to
   finish. If the build can't be fixed in time, the merge is committed and the branch is
   left with the remaining errors plus a clear report.
+- `--allowedTools` is passed as a single space-separated string; if your `claude` CLI
+  version expects a different format, adjust `SYNC_CLAUDE_ALLOWED_TOOLS`.
