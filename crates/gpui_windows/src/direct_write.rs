@@ -2131,12 +2131,7 @@ mod tests {
         let layer_alpha = vec![255u8; 4 * 4];
         let layer = GlyphLayerTexture::new(
             &gpu_state,
-            Rgba {
-                r: 1.0,
-                g: 1.0,
-                b: 1.0,
-                a: 1.0,
-            },
+            Rgba::new(1.0, 1.0, 1.0, 1.0),
             bounds(point(0, 0), size(4, 4)),
             &layer_alpha,
         )?;
